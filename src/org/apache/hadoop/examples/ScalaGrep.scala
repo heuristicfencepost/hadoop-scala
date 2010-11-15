@@ -39,36 +39,36 @@ class ScalaGrep extends Configured {
 
     try {
 
-      grepJob.setJobName("grep-search");
+      grepJob setJobName "grep-search"
 
       FileInputFormat.setInputPaths(grepJob, args(0));
 
-      grepJob.setMapperClass(classOf[RegexMapper[_]]);
+      grepJob setMapperClass classOf[RegexMapper[_]]
 
-      grepJob.setCombinerClass(classOf[LongSumReducer[_]]);
-      grepJob.setReducerClass(classOf[LongSumReducer[_]]);
+      grepJob setCombinerClass classOf[LongSumReducer[_]]
+      grepJob setReducerClass classOf[LongSumReducer[_]]
 
       FileOutputFormat.setOutputPath(grepJob, tempDir);
-      grepJob.setOutputFormatClass(classOf[SequenceFileOutputFormat[_,_]]);
-      grepJob.setOutputKeyClass(classOf[Text]);
-      grepJob.setOutputValueClass(classOf[LongWritable]);
+      grepJob setOutputFormatClass classOf[SequenceFileOutputFormat[_,_]]
+      grepJob setOutputKeyClass classOf[Text]
+      grepJob setOutputValueClass classOf[LongWritable]
 
-      grepJob.waitForCompletion(true);
+      grepJob waitForCompletion true
 
       val sortJob = new Job(conf);
-      sortJob.setJobName("grep-sort");
+      sortJob setJobName "grep-sort"
 
       FileInputFormat.setInputPaths(sortJob, tempDir);
-      sortJob.setInputFormatClass(classOf[SequenceFileInputFormat[_,_]]);
+      sortJob setInputFormatClass classOf[SequenceFileInputFormat[_,_]]
 
-      sortJob.setMapperClass(classOf[InverseMapper[_,_]]);
+      sortJob setMapperClass classOf[InverseMapper[_,_]]
 
-      sortJob.setNumReduceTasks(1);                 // write a single file
+      sortJob setNumReduceTasks 1                 // write a single file
       FileOutputFormat.setOutputPath(sortJob, new Path(args(1)))
-      sortJob.setSortComparatorClass(          // sort by decreasing freq
-        classOf[LongWritable.DecreasingComparator]);
+      sortJob setSortComparatorClass          // sort by decreasing freq
+        classOf[LongWritable.DecreasingComparator]
 
-      sortJob.waitForCompletion(true);
+      sortJob waitForCompletion true
     }
     finally {
       FileSystem.get(conf).delete(tempDir, true);
