@@ -2,6 +2,7 @@ package org.apache.hadoop.examples
 
 import java.util.Random
 
+import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.conf.Configured
 import org.apache.hadoop.fs.FileSystem
 import org.apache.hadoop.fs.Path
@@ -15,9 +16,10 @@ import org.apache.hadoop.mapreduce.lib.map.RegexMapper
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat
 import org.apache.hadoop.mapreduce.lib.reduce.LongSumReducer
+import org.apache.hadoop.util.Tool
 import org.apache.hadoop.util.ToolRunner
 
-class Grep extends Configured {
+class Grep extends Configured with Tool {
 
   def run(args:Array[String]):Int = {
     if (args.length < 3) {
@@ -74,5 +76,13 @@ class Grep extends Configured {
       FileSystem.get(conf).delete(tempDir, true)
     }
     0
+  }
+}
+
+object Grep {
+
+  def main(args:Array[String]):Unit = {
+    val res = ToolRunner.run(new Configuration(), new Grep(), args);
+    System.exit(res);
   }
 }
