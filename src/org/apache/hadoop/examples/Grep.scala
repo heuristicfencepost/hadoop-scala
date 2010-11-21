@@ -17,31 +17,31 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat
 import org.apache.hadoop.mapreduce.lib.reduce.LongSumReducer
 import org.apache.hadoop.util.ToolRunner
 
-class ScalaGrep extends Configured {
+class Grep extends Configured {
 
   def run(args:Array[String]):Int = {
     if (args.length < 3) {
-      System.out.println("Grep <inDir> <outDir> <regex> [<group>]");
-      ToolRunner.printGenericCommandUsage(System.out);
-      return 2;
+      System.out.println("Grep <inDir> <outDir> <regex> [<group>]")
+      ToolRunner.printGenericCommandUsage(System.out)
+      return 2
     }
 
     val tempDir =
       new Path("grep-temp-"+
-          Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
+          Integer.toString(new Random().nextInt(Integer.MAX_VALUE)))
 
     val conf = getConf();
-    conf.set(RegexMapper.PATTERN, args(2));
+    conf.set(RegexMapper.PATTERN, args(2))
     if (args.length == 4)
-      conf.set(RegexMapper.GROUP, args(3));
+      conf.set(RegexMapper.GROUP, args(3))
 
-    val grepJob = new Job(conf);
+    val grepJob = new Job(conf)
 
     try {
 
       grepJob setJobName "grep-search"
 
-      FileInputFormat.setInputPaths(grepJob, args(0));
+      FileInputFormat.setInputPaths(grepJob, args(0))
 
       grepJob setMapperClass classOf[RegexMapper[_]]
 
@@ -55,10 +55,10 @@ class ScalaGrep extends Configured {
 
       grepJob waitForCompletion true
 
-      val sortJob = new Job(conf);
+      val sortJob = new Job(conf)
       sortJob setJobName "grep-sort"
 
-      FileInputFormat.setInputPaths(sortJob, tempDir);
+      FileInputFormat.setInputPaths(sortJob, tempDir)
       sortJob setInputFormatClass classOf[SequenceFileInputFormat[_,_]]
 
       sortJob setMapperClass classOf[InverseMapper[_,_]]
@@ -71,8 +71,8 @@ class ScalaGrep extends Configured {
       sortJob waitForCompletion true
     }
     finally {
-      FileSystem.get(conf).delete(tempDir, true);
+      FileSystem.get(conf).delete(tempDir, true)
     }
-    return 0;
+    0
   }
 }
